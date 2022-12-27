@@ -3,8 +3,8 @@
 Remove contents from box.
 
 # Contents:
-* 8x M.2 5x12mm screws for the case
-* 4x M.2 5x12mm screws for the fan
+* 8x M2.5x12mm screws for the case
+* 4x M2.5x12mm screws for the fan
 * 4x bolts for the fan
 * 1x fan
 * 1x case top
