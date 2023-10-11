@@ -188,7 +188,7 @@ So, to tune EDID on PiKVM, use the following steps:
    # cp /root/myedid.hex /etc/kvmd/tc358743-edid.hex
    ```
 
-6. Alternative to step (4) and (5): if you are confident in your abilities, you can immediately install the new `myedit.bin` into the system and apply it instantly, without the need to use the temporary `myedid.hex`:
+6. Alternative to step (4) and (5): if you are confident in your abilities, you can immediately install the new `myedid.bin` into the system and apply it instantly, without the need to use the temporary `myedid.hex`:
    ```
    # kvmd-edidconf --import=/root/myedid.bin --apply
    ```
