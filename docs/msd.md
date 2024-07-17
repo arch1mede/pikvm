@@ -155,11 +155,14 @@ At the same time, you will be able to upload images via PiKVM Web UI to NFS, and
 
 ??? example "Step by step: Connecting NFS storage"
 
-    1. Make some preparations:
+    1. Update OS:
+
+        {!_update_os.md!}
+
+    2. Make some preparations:
 
         ```console
         [root@pikvm ~]# rw
-        [root@pikvm ~]# pacman -Syu
         [root@pikvm ~]# pacman -S nfs-utils
         [root@pikvm ~]# kvmd-helper-otgmsd-remount rw
         [root@pikvm ~]# mkdir -p /var/lib/kvmd/msd/NFS_Primary
@@ -184,6 +187,38 @@ Note if an image is added to the NFS storage from the outside, PiKVM will not be
 `Drive -> Reset` in the Web UI to update the list of images.
 
 Configuring an NFS server is beyond the scope of this guide.
+
+
+-----
+## Samba/CIFS storage
+
+If you already have a local samba server e.g. Unraid or another NAS you can use the isos from there.
+
+To refresh the list of available isos on the share it is currently necessary to reboot.
+
+??? example "Step by step: Connecting Samba/CIFS storage"
+
+    1. Update OS:
+
+        {!_update_os.md!}
+
+    2. Make some preparations:
+
+        ```console
+        [root@pikvm ~]# rw
+        [root@pikvm ~]# pacman -S cifs-utils
+        [root@pikvm ~]# kvmd-helper-otgmsd-remount rw
+        [root@pikvm ~]# mkdir -p /var/lib/kvmd/msd/isos
+        [root@pikvm ~]# kvmd-helper-otgmsd-remount ro
+        ```
+
+    2. Add Samba/CIFS shares to `/etc/fstab`:
+
+        ```fstab
+        //192.168.0.1/isos   /var/lib/kvmd/msd/isos   cifs  guest,_netdev,nofail 0 0
+        ```
+
+    3. Perform `reboot` to apply all changes.
 
 
 -----
@@ -474,3 +509,48 @@ ssh into the Ubuntu system (Or whatever OS you are using)
 ```
 
 * Mount `ventoy.img` as normal flash and select the PiKVM boot device, it should popup with the VenToy logo with the window.iso as a selection 
+
+-----
+## An alternative to making a Windows boot image that does not require a physical usb flash drive on a single windows machine
+
+* Physical USB is not needed
+* Requires Administrator rights on the windows machine
+
+* Testing was done on a Windows 11 machine with a Windows 11 23H2 ISO
+
+* Requires a windows ISO (can be downloaded from the microsoft website), Rufus (To write the ISO to the VHD) and VirtualBox (Uses VBoxManage to convert VHD to IMG)
+
+1. Create a VHD in Windows, This can be done in two ways that i know of.
+
+    Method 1:
+    Open up the windows settings, go to storage, press advanced storage settings and press Disks & Volumes
+    Press the Create VHD button, Give the disk a name, set a storage location and set the Virtual hard disk size (for 23H2 i used 6300MB). Set the Virtual hard disk format to VHD and set it to Fixed Size.
+    Press Create and then you will get a menu to initialize the disk, press cancel
+
+    Method 2:
+    Open up the windows partition manager, make sure you don't have any partitions or disks selected by pressing on empty space, Go to Action and select Create VHD.
+    Select a location for the VHD file, set the VHD size (for 23H2 i used 6300MB), Set the Virtual hard disk format to VHD and set it to Fixed Size.
+    Press OK
+
+2.
+    Download the Windows ISO and Rufus (i use the portable version), open rufus select the NO_LABEL disk that should roughly match size selected when creating the VHD (MiB vs MB).
+    Select the ISO you downloaded and press start
+    Once it is done close rufus (optionally delete rufus)
+
+3. Unmount the VHD by either opening up windows explorer, right clicking on the windows installer drive and pressing eject or opening up the windows partition manager, right clicking on the virtual disk and detaching the VHD
+
+4.
+    Download and install Virtualbox
+    Open up a command prompt in the location where you stored the VHD
+    ```console
+    VBoxManage clonehd input.vhd output.img --format raw
+    ```
+    Or if virtualbox didn't get added to the system environment variables
+    ```console
+    "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe" clonehd input.vhd output.img --format raw
+    ```
+    This will convert the VHD to the IMG ready to be uploaded to the pikvm
+
+
+* using vboxmanage does have a slight quirk where it writes every conversion to <username>\.VirtualBox\VirtualBox.xml so if you make changes to the vhd and try to convert it again it throws and error that the uuid doesn't match the stored value in VirtualBox.xml and you need to either throw away VirtualBox.xml or edit it and delete the line that matches the error
+* this method has also been tested using the windows installer for ventoy (needs enabling show all devices in the windows installer)

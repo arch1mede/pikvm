@@ -13,6 +13,9 @@ After applying the settings, the file is automatically deleted.
 -----
 ## Setting up Wi-Fi
 
+!!! note
+    Devices based on Raspberry Pi Zero 2 W does not support 5GHz Wi-Fi.
+
 1. Remove the PiKVM memory card. The device must be turned off.
 
 2. Insert the memory card into the computer and mount the first FAT32 partition.
@@ -20,7 +23,7 @@ After applying the settings, the file is automatically deleted.
 3. Among the system files you will see the file `pikvm.txt`.
     If you haven't enabled PiKVM yet, this file will contain a single line `FIRST_BOOT=1`.
 
-4. To connect to Wi-Fi, you will need an ESSID (network name) and a password. Add this to `pikvm.txt`.
+4. To connect to Wi-Fi with DHCP, you will need an ESSID (network name) and a password. Add this to `pikvm.txt`.
     If the file doesn't exists, just create it. Like following:
 
     ```bash
@@ -33,11 +36,12 @@ After applying the settings, the file is automatically deleted.
     If there was a string `FIRST_BOOT=1` in the file, do not remove it.
     This is the trigger needed to initialize the OS at the first boot.
     On the contrary, if the file pikvm.txt does not exist, you should not add this line.
-
+   
 5. Unmount partition and return the memory card to PiKVM.
 
 6. A few things to keep in mind:
-    * WPA3 is not supported. Enable WPA2 on your router.
+    * Note that after applying the settings, the pikvm.txt file will be deleted.
+    * WPA3 is not supported. Enable WPA2 on your router, while AES is supported, some aspects of it is not and you may need to disable AES for it to connect.
     * There is a possibility that, in countries that support channel 13, the device will not connect.
         You will need to configure your router to disable channels 12-14 or disable Auto scan mode.
 
@@ -46,6 +50,9 @@ After applying the settings, the file is automatically deleted.
 ## Other available options
 
 A number of other parameters can be applied in the same way as with Wi-Fi.
+
+!!! note
+    The parameters must be specified strictly each on a separate line.
 
 * `FIRST_BOOT=1`<br>
     Triggers initialization of the first OS startup. The following actions are performed:
@@ -68,18 +75,26 @@ A number of other parameters can be applied in the same way as with Wi-Fi.
 * `ETH_DHCP=1`<br>
     Configures Ethernet port for DHCP. This is a default for PiKVM OS.
 
-* `ETH_ADDR=192.168.0.100/24`, `ETH_DNS=8.8.8.8`, `ETH_GW=192.168.0.1`<br>
-    Configures a static IP on the Ethernet port. Only IPv4 available here. For IPv6 you'll need to change
+* `ETH_ADDR=192.168.0.100/24`<br>`ETH_DNS=8.8.8.8`<br>`ETH_GW=192.168.0.1`<br>
+    Configures a static IP on the Ethernet port. Only IPv4 is available here. For IPv6 you'll need to change
     [systemd configuration files](https://wiki.archlinux.org/title/systemd-networkd) on the live OS.
     All three options must be set simultaneously to avoid incorrect configuration.
 
-* `WIFI_ESSID=foo`, `WIFI_PASSWD=bar`<br>
-    Configures Wi-Fi, described in more detail in previous paragrpah.
+* `WIFI_ESSID=foo`<br>`WIFI_PASSWD=bar`<br>
+    Configures Wi-Fi with DHCP, described in more detail in previous paragrpah.
     Both options must be set simultaneously to avoid incorrect configuration.
+
+* `WIFI_HIDDEN=1`<br>
+    Allows to connect to hidden Wi-Fi network. Available only on new images >= 2024.03.12.
 
 * `WIFI_REGDOM=US`<br>
     Changes Wi-Fi regulatory domain to the US. Other domains available by
     [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) country codes.
+
+* `WIFI_ADDR=192.168.0.100/24`<br>`WIFI_DNS=8.8.8.8`<br>`WIFI_GW=192.168.0.1`<br>
+    Configures a static IP on the Wifi. Only IPv4 is available here. For IPv6 you'll need to change
+    [systemd configuration files](https://wiki.archlinux.org/title/systemd-networkd) on the live OS.
+    All three options must be set simultaneously with `WIFI_ESSID` and `WIFI_PASSWD` to avoid incorrect configuration.
 
 
 -----

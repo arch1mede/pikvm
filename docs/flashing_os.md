@@ -40,8 +40,28 @@ Download the appropriate SD card image. Select it based on the board, platform, 
         * Support has been discontinued due to reaching the End-of-Life of the base board.<br>
             Please join [Discord](https://discord.gg/bpmXfz5) and ask about this in #unofficial_ports channel if you still want to use it.
 
-!!! abstract "Any other platforms"
-    You will need to build the image manually. But don't worry, it's [very simple](building_os.md).
+!!! abstract "DIY PiKVM V1 Platform"
+
+    * **Raspberry Pi 3**
+        * [For HDMI-CSI bridge](https://files.pikvm.org/images/v1-hdmi-rpi3-latest.img.xz)
+            <sub>- [*sha1*](https://files.pikvm.org/images/v1-hdmi-rpi3-latest.img.xz.sha1)</sub>
+        * [For HDMI-USB dongle](https://files.pikvm.org/images/v1-hdmiusb-rpi3-latest.img.xz)
+            <sub>- [*sha1*](https://files.pikvm.org/images/v1-hdmiusb-rpi3-latest.img.xz.sha1)</sub>
+
+    * **Raspberry Pi 2**
+        * [For HDMI-CSI bridge](https://files.pikvm.org/images/v1-hdmi-rpi2-latest.img.xz)
+            <sub>- [*sha1*](https://files.pikvm.org/images/v1-hdmi-rpi2-latest.img.xz.sha1)</sub>
+        * [For HDMI-USB dongle](https://files.pikvm.org/images/v1-hdmiusb-rpi2-latest.img.xz)
+            <sub>- [*sha1*](https://files.pikvm.org/images/v1-hdmiusb-rpi2-latest.img.xz.sha1)</sub>
+
+    * **Raspberry Pi Zero 2 W**
+        * [For HDMI-CSI bridge](https://files.pikvm.org/images/v1-hdmi-zero2w-latest.img.xz)
+            <sub>- [*sha1*](https://files.pikvm.org/images/v1-hdmi-zero2w-latest.img.xz.sha1)</sub>
+        * [For HDMI-USB dongle](https://files.pikvm.org/images/v1-hdmiusb-zero2w-latest.img.xz)
+            <sub>- [*sha1*](https://files.pikvm.org/images/v1-hdmiusb-zero2w-latest.img.xz.sha1)</sub>
+
+!!! abstract "Any other combinations for advanced users"
+    Please check the [file archives](https://files.pikvm.org/images/) for ready-made image or [build the image yourself](building_os.md).
 
 
 -----
@@ -51,7 +71,7 @@ Download the appropriate SD card image. Select it based on the board, platform, 
     After inserting the memory card into your computer, ignore request to format. This is not nessessary.
 
 
-### Using Linux CLI
+### Using Linux CLI (ADVANCED USERS)
 
 Decompress (if nessessary) and flash the image. **Be careful when choosing the device path, it may be different on your machine**:
 
@@ -71,14 +91,14 @@ You can also use `dd_rescue` or `ddrescue`.
 
     <img src="RPi-imager1.jpg" width="400" />
 
-3. Press **CHOOSE OS** and select **Use custom** image at bottom of the list:
+3. Press **NO FILTERING** then **CHOOSE OS** and select **Use custom** image at bottom of the list:
 
     <img src="RPi-imager2.jpg" width="400" />
 
 4. After clicking on this item, select the image file (`*.img` or `*.img.xz`), then click **CHOOSE STORAGE**:
 
     !!! warning
-        Check the advanced settings (`CTRL+SHIFT+X`), make sure they are blank or the flash will fail.
+        This should already be set to blank though the flashing process from step 7 but its best to double check the advanced settings (`CTRL+SHIFT+X`), make sure they are blank or the flash will fail.
 
     <img src="RPi-imager3.jpg" width="400" />
 
@@ -90,17 +110,22 @@ You can also use `dd_rescue` or `ddrescue`.
 
     <img src="RPi-imager5.jpg" width="400" />
 
-7. Wait for the process to finish. Get yourself a coffee or do some stretching :)
-    The process may hang at 99% for a long time, this is okay, just wait for it to complete.
+7. Refuse customization options.
 
+    !!! warning
+
+        The customization is designed for Raspberry OS and will not work in PiKVM OS.
+        If you apply any custom settings, this will cause the image to malfunction.
+
+        PiKVM OS has its [own settings mechanism](on_boot_config.md), please use it after the flashing
+        if you need to configure Wi-Fi or something similar.
+        
     <img src="RPi-imager6.jpg" width="400" />
 
-8. Remove the memory card after successful completion. If an error occurs during flashing or booting PiKVM, repeat the process.
-    If the error persists, use a different card.
+8. Wait for the process to finish. Get yourself a coffee or do some stretching :)
+    The process may hang at 99% for a long time, this is okay, just wait for it to complete.
 
     <img src="RPi-imager7.jpg" width="400" />
 
-    !!! tip
-        If an error occurs during flashing or booting PiKVM, repeat the process.
-        
-When you have completed these steps, please move to the [First Steps doc.](https://docs.pikvm.org/first_steps/)
+9. Remove the memory card after successful completion. If an error occurs during flashing or booting PiKVM, repeat the process.
+    If the error persists, use a different memory card.

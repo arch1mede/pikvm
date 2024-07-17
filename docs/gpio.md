@@ -170,6 +170,7 @@ Some rules and customization options:
 * To change the LED's color specify it after the channel name like `"led1|red"`. Available: `green`, `yellow` and `red`.
 * To change title of the button, write some its name like `"relay1|My cool relay"`.
 * Buttons and switches can request confirmation on acting. To do this write its name like `"relay1|confirm|My cool relay"`. The third argument with a title is required in this case.
+* The button can automatically close the menu when clicked. Use something like `"relay1|hide|My button"`. It can be used with confirmation option: `"relay1|confirm,hide|My button"`.
 
 Also you can place some leds in the menu title using the similar syntax:
 
@@ -352,7 +353,7 @@ kvmd
     The `pwm` driver allows you to use [some GPIO pins](https://pinout.xyz/pinout/pwm) on the Raspberry Pi for PWM.
 
     !!! note
-        Due to hardware limitations, this module conflicts with the **kvmd-fan** (PiKVM fan controller).
+        Due to hardware limitations, this module conflicts with the **kvmd-fan** (the fan controller) on PiKVM V3 and V4 Plus.
         To use it, you have to use hardware PWM for kvmfan. To do this, add the following lines to `/etc/kvmd/fan.ini`:
 
         ```ini
@@ -360,13 +361,23 @@ kvmd
         pwm_soft = 80
         ```
 
+        *Not needed for V4 Mini because it does not have a fan.*
+
     Here the small example with servo control:
 
-    1. Add to `/boot/config.txt`:
+    1. Add some params to `/boot/config.txt`:
 
-        ```
-        dtoverlay=pwm
-        ```
+        * For PiKVM V3 or DIY device to enable [PWM0_0](https://github.com/dotnet/iot/blob/main/Documentation/raspi-pwm.md#enabling-hardware-pwm) on RPi GPIO18:
+
+            ```ini
+            dtoverlay=pwm
+            ```
+
+        * For PiKVM V4 to enable [PWM0_0](https://github.com/dotnet/iot/blob/main/Documentation/raspi-pwm.md#enabling-hardware-pwm) on CM4 GPIO12 (CN5 NeoPixel Pin) and set the PWM function to 4 (ALT0):
+
+            ```ini
+            dtoverlay=pwm,pin=12,func=4
+            ```
 
     2. Create `/etc/udev/rules.d/99-kvmd-pwm.rules`:
 
@@ -375,7 +386,7 @@ kvmd
         SUBSYSTEM=="pwm*", ACTION=="change", ENV{TRIGGER}!="none", RUN+="/bin/chgrp -R kvmd /sys%p", RUN+="/bin/chmod -R g=u /sys%p"
         ```
 
-    3. Connect Servo motor like SG90 PWM connection to RPi GPIO18, +5V and GND to a 5V and GND pin on header:
+    3. Connect Servo motor like SG90 PWM connection to RPi GPIO18 or CM4 GPIO12, +5V and GND to a 5V and GND pin on header:
 
     4. Add to /etc/kvmd/override.yaml
 
@@ -390,6 +401,8 @@ kvmd
                         duty_cycle_push: 1500000     # Servo Motor SG90 duty_cycle for pushing button
                         duty_cycle_release: 1000000  # Servo Motor SG90 duty_cycle for releasing button
                 scheme:
+                    __v4_locator__:  # v4-mini only
+                        pin: 18      # v4-mini only
                     short_press:
                         driver: servo1
                         pin: 0  # Pin number is the PWM channel number on the PWM Chip
@@ -426,16 +439,18 @@ kvmd
 
 ### Servo
 ??? note "Click to view"
-    The `servo` module is built on top of the `pwm` module and allows user to define angles instead of `duty_cyles` to control a PWM enabled servo motor like SG90. When the button is pressed the servo motor moves to an angle defined by `angle_push` and when button is released it moves back to `angle_release`. In the example configuration for a [cheap 5V SG90 Servo](https://www.ebay.co.uk/itm/184555802744), the motor moves to an angle of 45 degrees when button is pressed and moves back to 20 degress when released.
+    The `servo` module is built on top of the `pwm` module and allows user to define angles instead of `duty_cyles` to control a PWM enabled servo motor like SG90. When the button is pressed the servo motor moves to an angle defined by `angle_push` and when button is released it moves back to `angle_release`. In the example configuration for a [cheap 5V SG90 Servo](https://www.ebay.co.uk/sch/i.html?_nkw=5V+SG90+Servo), the motor moves to an angle of 45 degrees when button is pressed and moves back to 20 degress when released.
 
     !!! note
-        Due to hardware limitations, this module conflicts with the **kvmd-fan** (PiKVM fan controller).
+        Due to hardware limitations, this module conflicts with the **kvmd-fan** (the fan controller) on PiKVM V3 and V4 Plus.
         To use it, you have to use hardware PWM for kvmfan. To do this, add the following lines to `/etc/kvmd/fan.ini`:
 
         ```ini
         [main]
         pwm_soft = 80
         ```
+
+        *Not needed for v4-mini because it does not have a fan.*
 
     To use Servo motors in PiKVM you need to follow steps 1-3 for [PWM Module](#pwm) and then use the following configuration.
 
@@ -456,30 +471,33 @@ kvmd
                     angle_push: 45           # Servo Motor SG90 angle to push button
                     angle_release: 20        # Servo Motor SG90 angle to release button
             scheme:
-                short_press:
-                    driver: servo1
-                    pin: 0  # Pin number is the PWM channel number on the PWM Chip
-                    mode: output
-                    switch: false
-                    pulse:
-                        delay: 0.5
-                        max_delay: 2
-                long_press:
-                    driver: servo1
-                    pin: 0
-                    mode: output
-                    switch: false
-                    pulse:
-                        delay: 2
-                        max_delay: 2
-                extra_long_press:
-                    driver: servo1
-                    pin: 0
-                    mode: output
-                    switch: false
-                    pulse:
-                        delay: 10
-                        max_delay: 20
+                scheme:
+                    __v4_locator__:  # v4-mini only
+                        pin: 18      # v4-mini only
+                    short_press:
+                        driver: servo1
+                        pin: 0  # Pin number is the PWM channel number on the PWM Chip
+                        mode: output
+                        switch: false
+                        pulse:
+                            delay: 0.5
+                            max_delay: 2
+                    long_press:
+                        driver: servo1
+                        pin: 0
+                        mode: output
+                        switch: false
+                        pulse:
+                            delay: 2
+                            max_delay: 2
+                    extra_long_press:
+                        driver: servo1
+                        pin: 0
+                        mode: output
+                        switch: false
+                        pulse:
+                            delay: 10
+                            max_delay: 20
             view:
                 header:
                     title: Controls
@@ -561,4 +579,59 @@ kvmd
                     - ["#PDU0"]
                     - []
                     - ["#PDU0_Port0:", pdu0_0_led, "pdu0_0_pwr|confirm|test"] 
+    ```
+
+
+### Extron SW Series Switchers
+??? note "Click to view"
+    The `extron` plugin allows you to control Extron SW series switchers (ex. SW4 USB, SW4 VGA, etc.). There are up to 4 Ports per switcher. Input pulls the the current state from the switcher, Output switches the active port.
+
+    ```yaml
+    kvmd:
+        gpio:
+            drivers:
+                extron_vga:
+                    type: extron
+                    device: /dev/ttyUSB0  # The path to the RS-232 serial adapter
+            scheme:
+                vga_port1_led:
+                    pin: 0
+                    driver: extron_vga
+                    mode: input
+                vga_port2_led:
+                    pin: 1
+                    driver: extron_vga
+                    mode: input
+                vga_port3_led:
+                    pin: 2
+                    driver: extron_vga
+                    mode: input
+                vga_port4_led:
+                    pin: 3
+                    driver: extron_vga
+                    mode: input
+                vga_port1_button:
+                    pin: 0
+                    driver: extron_vga
+                    mode: output
+                vga_port2_button:
+                    pin: 1
+                    driver: extron_vga
+                    mode: output
+                vga_port3_button:
+                    pin: 2
+                    driver: extron_vga
+                    mode: output
+                vga_port4_button:
+                    pin: 3
+                    driver: extron_vga
+                    mode: output
+            view:
+                header:
+                   title: "Extron SW4 VGA"
+                table:
+                    - ["vga_port1_led|red", "vga_port1_button||Port 1"]
+                    - ["vga_port2_led|red", "vga_port2_button||Port 2"]
+                    - ["vga_port3_led|red", "vga_port3_button||Port 3"]
+                    - ["vga_port4_led|red", "vga_port4_button||Port 4"]
     ```

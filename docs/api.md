@@ -2,6 +2,9 @@
 
 This document describes the PiKVM API. Since the system consists of microservices, here is a common API with a common entry point provided by Nginx. The examples above use `curl` and [`websocat`](https://github.com/vi/websocat) with the `-k` option to disable SSL certificate verification, since the self-signed certificateis used in the default installation.
 
+There is a [third-party library](https://github.com/guanana/pikvm-lib) for using the PiKVM API.
+Please note that this is an unofficial library, so use it carefully.
+
 
 -----
 ## Authentication
@@ -125,6 +128,7 @@ Another type of event is `ping`, which can be sent by the client: `{"event_type"
     headers = {"X-KVMD-User": "admin", "X-KVMD-Passwd": "admin"}
     ws = websocket.WebSocket(sslopt={"cert_reqs": ssl.CERT_NONE})
     ws.connect(uri, header=headers)
+    # Key codes: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code/code_values
     ws.send('{"event_type": "key", "event": {"key": "Enter", "state": true}}')
     time.sleep(0.05)
     ws.send('{"event_type": "key", "event": {"key": "Enter", "state": false}}')

@@ -1,6 +1,7 @@
-# Using Arduino HID on non-V0 platform
-
-This is useful if you need a simple and primitive keyboard/mouse emulator device. For example when used with a hardware KVM switch which [does not recognize composite HID](https://github.com/pikvm/pikvm/issues/7). You can also use the Arduino HID to emulate the PS/2 keyboard.
+!!! warning "Legacy warning"
+    This page describes the legacy keyboard and mouse emulator used in old DIY builds.
+    There is no point using it today because there is a more modern and better replacement for the [new Pico HID](pico_hid.md).
+    This one can also serve as an in-place compatible replacement for the Arduino HID in the old build.
 
 
 -----
@@ -176,12 +177,11 @@ Programming assumes the Arduino is powered via USB, either from the connected ho
 
 ### Preparing the installation for SPI devices and programming
 
-As of the latest package release, the kdmd service supports SPI. It should be sufficient to ensure the packages are up-to-date with the latest release, the programmer is installed, and the SPI device overlay is loaded at boot.
+As of the latest package release, the kvmd service supports SPI. It should be sufficient to ensure the packages are up-to-date with the latest release, the programmer is installed, and the SPI device overlay is loaded at boot.
 
 * Switch the filesystem to read-write mode with `rw`
-* Update the system and install the avrdude programmer `pacman -Syu avrdude-pikvm`
 * Add `dtoverlay=spi0-1cs` to `/boot/config.txt`
-* Reboot with `reboot` or `systemctl reboot`
+* Perform `reboot`.
 
 
 ### Flashing the Arduino
